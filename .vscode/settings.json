@@ -1,0 +1,8 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/venv/Scripts/python.exe",
+  "terminal.integrated.env.windows": {
+    "VIRTUAL_ENV": "${workspaceFolder}/backend/venv",
+    "PATH": "${workspaceFolder}/backend/venv/Scripts;${env:PATH}"
+  },
+  "terminal.integrated.defaultProfile.windows": "PowerShell"
+}
