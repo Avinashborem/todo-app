@@ -25,23 +25,26 @@ export default function FilterBar({ filters, onChange }) {
         />
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-mono text-text-muted uppercase tracking-wide mr-1">category:</span>
         {['all','work','personal','study'].map(cat => (
           <button key={cat} onClick={() => handle('category', cat)} className={btnCls(filters.category === cat)}>
             <span className={`w-2 h-2 rounded-full ${CATEGORY_DOTS[cat]}`} /> {cat}
           </button>
         ))}
+      </div>
 
-        <div className="w-px bg-border self-stretch mx-1" />
-
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-mono text-text-muted uppercase tracking-wide mr-1">priority:</span>
         {['all','high','medium','low'].map(pri => (
           <button key={pri} onClick={() => handle('priority', pri)} className={btnCls(filters.priority === pri)}>
             <span className={`w-2 h-2 rounded-full ${PRIORITY_DOTS[pri]}`} /> {pri}
           </button>
         ))}
+      </div>
 
-        <div className="w-px bg-border self-stretch mx-1" />
-
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-mono text-text-muted uppercase tracking-wide mr-1">status:</span>
         <button onClick={() => handle('completed', undefined)} className={btnCls(filters.completed === undefined)}>all</button>
         <button onClick={() => handle('completed', false)} className={btnCls(filters.completed === false)}>pending</button>
         <button onClick={() => handle('completed', true)} className={btnCls(filters.completed === true)}>done</button>
