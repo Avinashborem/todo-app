@@ -17,8 +17,8 @@ export default function App() {
   const [stats, setStats] = useState(null)
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [showForm, setShowForm] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [editTask, setEditTask] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [dark, setDark] = useState(() => {
     return localStorage.getItem('theme') === 'dark' ||
       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -53,14 +53,21 @@ export default function App() {
     const res = await createTask(data)
     setTasks(prev => [res.data, ...prev])
     await getStats().then(r => setStats(r.data))
-    toast.success('Task added!')
+    toast.success('Task added')
+  }
+
+  const handleUpdate = async (id, data) => {
+    const res = await updateTask(id, data)
+    setTasks(prev => prev.map(t => t.id === id ? res.data : t))
+    await getStats().then(r => setStats(r.data))
+    toast.success('Task updated')
   }
 
   const handleToggle = async (id, current) => {
     const res = await updateTask(id, { completed: !current })
     setTasks(prev => prev.map(t => t.id === id ? res.data : t))
     await getStats().then(r => setStats(r.data))
-    toast.success(!current ? '✅ Marked complete!' : 'Marked pending')
+    toast.success(!current ? 'Marked complete' : 'Marked pending')
   }
 
   const handleDelete = async (id) => {
@@ -70,59 +77,58 @@ export default function App() {
     toast.success('Task deleted')
   }
 
-  const handleUpdate = async (id, data) => {
-  const res = await updateTask(id, data)
-  setTasks(prev => prev.map(t => t.id === id ? res.data : t))
-  await getStats().then(r => setStats(r.data))
-  toast.success('Task updated!')
-}
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur border-b border-gray-100 dark:border-gray-700">
+    <div className="min-h-screen bg-bg text-text transition-colors duration-300">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-              ✅ TaskFlow
-            </h1>
-            <p className="text-xs text-gray-400 dark:text-gray-500">Stay organized, stay ahead</p>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="flex gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                <span className="w-2.5 h-2.5 rounded-full bg-accent" />
+              </div>
+              <span className="font-mono text-xs text-text-muted">~/taskflow</span>
+            </div>
+            <h1 className="text-xl font-display font-bold text-text tracking-tight">TaskFlow</h1>
+            <p className="text-xs text-text-muted font-mono">// stay organized, stay ahead</p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={fetchAll} className="p-2 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <button onClick={fetchAll} className="p-2 rounded-lg border border-border text-text-muted hover:text-text hover:bg-surface-hover transition-colors" title="Refresh">
               <RefreshCw size={16} />
             </button>
             <ThemeToggle dark={dark} onToggle={() => setDark(d => !d)} />
             <button onClick={() => setShowForm(true)}
-              className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm">
-              <Plus size={16} /> Add Task
+              className="flex items-center gap-1.5 bg-accent text-bg font-display font-semibold text-sm px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+              <Plus size={16} /> New Task
             </button>
           </div>
         </div>
       </header>
 
+      {/* Main */}
       <main className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
           <FilterBar filters={filters} onChange={setFilters} />
 
           {loading ? (
-            <div className="text-center py-16 text-gray-400">
+            <div className="text-center py-16 text-text-muted">
               <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} className="inline-block">
                 <RefreshCw size={24} />
               </motion.div>
-              <p className="mt-2 text-sm">Loading tasks...</p>
+              <p className="mt-2 text-sm font-mono">loading tasks...</p>
             </div>
           ) : tasks.length === 0 ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="text-center py-16 text-gray-400 dark:text-gray-500">
-              <p className="text-4xl mb-3">🎯</p>
-              <p className="font-semibold text-gray-600 dark:text-gray-400">No tasks found</p>
-              <p className="text-sm mt-1">Add your first task or adjust your filters</p>
+              className="text-center py-16 text-text-muted">
+              <p className="text-4xl mb-3 font-mono">∅</p>
+              <p className="font-display font-semibold text-text">No tasks found</p>
+              <p className="text-sm mt-1 font-mono">// add a task or adjust filters</p>
             </motion.div>
           ) : (
             <motion.div layout className="space-y-3">
-              <div className="flex items-center justify-between px-1">
-                <p className="text-sm text-gray-500 dark:text-gray-400">{tasks.length} task{tasks.length !== 1 ? 's' : ''} found</p>
-              </div>
+              <p className="text-sm text-text-muted font-mono px-1">{tasks.length} task{tasks.length !== 1 ? 's' : ''} found</p>
               <AnimatePresence mode="popLayout">
                 {tasks.map(task => (
                   <TaskCard key={task.id} task={task} onToggle={handleToggle} onDelete={handleDelete} onEdit={setEditTask} onSubtaskChange={fetchAll} />

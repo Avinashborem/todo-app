@@ -4,11 +4,10 @@ export default function ThemeToggle({ dark, onToggle }) {
   return (
     <button
       onClick={onToggle}
-      className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300
-        hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-      title="Toggle dark mode"
+      className="p-2 rounded-lg border border-border text-text-muted hover:text-text hover:bg-surface-hover transition-colors"
+      title="Toggle theme"
     >
-      {dark ? <Sun size={18} /> : <Moon size={18} />}
+      {dark ? <Sun size={16} /> : <Moon size={16} />}
     </button>
   )
 }
