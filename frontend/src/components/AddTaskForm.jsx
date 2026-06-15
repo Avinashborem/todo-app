@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 
 const defaultForm = {
@@ -7,8 +7,17 @@ const defaultForm = {
   category: 'personal', deadline: ''
 }
 
-export default function AddTaskForm({ onAdd, onClose }) {
-  const [form, setForm] = useState(defaultForm)
+export default function AddTaskForm({ onAdd, onUpdate, onClose, editTask }) {
+  const isEdit = !!editTask
+  const [form, setForm] = useState(
+    isEdit ? {
+      title: editTask.title,
+      description: editTask.description || '',
+      priority: editTask.priority,
+      category: editTask.category,
+      deadline: editTask.deadline ? editTask.deadline.split('T')[0] : ''
+    } : defaultForm
+  )
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -19,10 +28,14 @@ export default function AddTaskForm({ onAdd, onClose }) {
     if (!form.title.trim()) { setError('Title is required'); return }
     setLoading(true)
     try {
-      await onAdd({ ...form, deadline: form.deadline || null })
+      if (isEdit) {
+        await onUpdate(editTask.id, { ...form, deadline: form.deadline || null })
+      } else {
+        await onAdd({ ...form, deadline: form.deadline || null })
+      }
       onClose()
     } catch {
-      setError('Failed to add task. Is the backend running?')
+      setError(isEdit ? 'Failed to update task.' : 'Failed to add task. Is the backend running?')
     } finally {
       setLoading(false)
     }
@@ -45,7 +58,9 @@ export default function AddTaskForm({ onAdd, onClose }) {
         className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6"
       >
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-white">Add New Task</h2>
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white">
+            {isEdit ? 'Edit Task' : 'Add New Task'}
+          </h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
             <X size={20} />
           </button>
@@ -94,7 +109,7 @@ export default function AddTaskForm({ onAdd, onClose }) {
           <button type="submit" disabled={loading}
             className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-60
               text-white font-semibold py-2.5 rounded-xl transition-colors">
-            {loading ? 'Adding...' : 'Add Task'}
+            {loading ? (isEdit ? 'Saving...' : 'Adding...') : (isEdit ? 'Save Changes' : 'Add Task')}
           </button>
         </form>
       </motion.div>

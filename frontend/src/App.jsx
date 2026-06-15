@@ -18,6 +18,7 @@ export default function App() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [editTask, setEditTask] = useState(null)
   const [dark, setDark] = useState(() => {
     return localStorage.getItem('theme') === 'dark' ||
       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -69,6 +70,13 @@ export default function App() {
     toast.success('Task deleted')
   }
 
+  const handleUpdate = async (id, data) => {
+  const res = await updateTask(id, data)
+  setTasks(prev => prev.map(t => t.id === id ? res.data : t))
+  await getStats().then(r => setStats(r.data))
+  toast.success('Task updated!')
+}
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur border-b border-gray-100 dark:border-gray-700">
@@ -117,7 +125,7 @@ export default function App() {
               </div>
               <AnimatePresence mode="popLayout">
                 {tasks.map(task => (
-                  <TaskCard key={task.id} task={task} onToggle={handleToggle} onDelete={handleDelete} onSubtaskChange={fetchAll} />
+                  <TaskCard key={task.id} task={task} onToggle={handleToggle} onDelete={handleDelete} onEdit={setEditTask} onSubtaskChange={fetchAll} />
                 ))}
               </AnimatePresence>
             </motion.div>
@@ -131,6 +139,7 @@ export default function App() {
 
       <AnimatePresence>
         {showForm && <AddTaskForm onAdd={handleAdd} onClose={() => setShowForm(false)} />}
+        {editTask && <AddTaskForm editTask={editTask} onUpdate={handleUpdate} onClose={() => setEditTask(null)} />}
       </AnimatePresence>
     </div>
   )

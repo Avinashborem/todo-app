@@ -1,1 +1,50 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+
+  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+:root {
+  --bg: #FAF9F4;
+  --surface: #FFFFFF;
+  --surface-hover: #F3F1EC;
+  --border: #E4E1DA;
+  --text: #1A1B1F;
+  --text-muted: #6B6D78;
+  --accent: #1F8A4C;
+  --accent-soft: #E3F3E9;
+}
+
+.dark {
+  --bg: #0D0E12;
+  --surface: #17191F;
+  --surface-hover: #1D2027;
+  --border: #2A2D36;
+  --text: #EDEBE8;
+  --text-muted: #8B8D98;
+  --accent: #7EE787;
+  --accent-soft: #1C2B20;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--text);
+}

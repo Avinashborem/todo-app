@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trash2, CheckCircle2, Circle, Clock, AlertTriangle, ChevronDown, ChevronUp, Plus, X } from 'lucide-react'
+import { Trash2, CheckCircle2, Circle, Clock, AlertTriangle, ChevronDown, ChevronUp, Plus, X, Pencil } from 'lucide-react'
 import { addSubtask, toggleSubtask, deleteSubtask } from '../api'
 
 const PRIORITY_STYLES = {
@@ -20,7 +20,7 @@ function isOverdue(deadline, completed) {
   return new Date(deadline) < new Date()
 }
 
-export default function TaskCard({ task, onToggle, onDelete, onSubtaskChange }) {
+export default function TaskCard({ task, onToggle, onDelete, onEdit, onSubtaskChange }) {
   const [expanded, setExpanded] = useState(false)
   const [newSubtask, setNewSubtask] = useState('')
   const [subtasks, setSubtasks] = useState(task.subtasks || [])
@@ -71,7 +71,6 @@ export default function TaskCard({ task, onToggle, onDelete, onSubtaskChange }) 
         ${overdue ? 'border-l-4 border-l-red-500' : ''}
       `}
     >
-      {/* Priority bar */}
       <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-full ${priority.bar}`} />
 
       {/* Main row */}
@@ -102,7 +101,6 @@ export default function TaskCard({ task, onToggle, onDelete, onSubtaskChange }) 
             )}
           </div>
 
-          {/* Subtask progress bar */}
           {total > 0 && (
             <div className="mt-3">
               <div className="flex justify-between text-xs text-gray-400 mb-1">
@@ -120,9 +118,13 @@ export default function TaskCard({ task, onToggle, onDelete, onSubtaskChange }) 
           )}
         </div>
 
+        {/* Action buttons */}
         <div className="flex flex-col items-end gap-2 shrink-0">
           <button onClick={() => onDelete(task.id)} className="text-gray-300 hover:text-red-500 transition-colors">
             <Trash2 size={18} />
+          </button>
+          <button onClick={() => onEdit(task)} className="text-gray-300 hover:text-violet-500 transition-colors">
+            <Pencil size={18} />
           </button>
           <button onClick={() => setExpanded(e => !e)} className="text-gray-300 hover:text-violet-500 transition-colors">
             {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -144,7 +146,6 @@ export default function TaskCard({ task, onToggle, onDelete, onSubtaskChange }) 
               {subtasks.length === 0 && (
                 <p className="text-xs text-gray-400 italic">No subtasks yet. Add one below.</p>
               )}
-
               {subtasks.map(s => (
                 <div key={s.id} className="flex items-center gap-2 group">
                   <button onClick={() => handleToggleSubtask(s.id)}
@@ -161,7 +162,6 @@ export default function TaskCard({ task, onToggle, onDelete, onSubtaskChange }) 
                 </div>
               ))}
 
-              {/* Add subtask input */}
               <div className="flex gap-2 mt-3">
                 <input
                   value={newSubtask}
