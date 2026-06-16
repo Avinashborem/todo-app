@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Plus, RefreshCw } from 'lucide-react'
+import { Plus, RefreshCw, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-import TaskCard from './components/TaskCard'
+import TaskGroup from './components/TaskGroup'
 import AddTaskForm from './components/AddTaskForm'
 import FilterBar from './components/FilterBar'
 import Dashboard from './components/Dashboard'
 import ThemeToggle from './components/ThemeToggle'
 import { getTasks, createTask, updateTask, deleteTask, getStats } from './api'
+import { groupAndSortTasks, getOverdueCount } from './utils/groupTasks'
 
 const DEFAULT_FILTERS = { search: '', category: 'all', priority: 'all', completed: undefined }
 
@@ -41,7 +42,7 @@ export default function App() {
       setTasks(tasksRes.data)
       setStats(statsRes.data)
     } catch {
-      toast.error('Cannot reach backend. Make sure FastAPI is running on port 8000.')
+      toast.error('Cannot reach backend. Make sure FastAPI is running.')
     } finally {
       setLoading(false)
     }
@@ -53,29 +54,33 @@ export default function App() {
     const res = await createTask(data)
     setTasks(prev => [res.data, ...prev])
     await getStats().then(r => setStats(r.data))
-    toast.success('Task added')
+    toast.success('task created')
   }
 
   const handleUpdate = async (id, data) => {
     const res = await updateTask(id, data)
     setTasks(prev => prev.map(t => t.id === id ? res.data : t))
     await getStats().then(r => setStats(r.data))
-    toast.success('Task updated')
+    toast.success('task updated')
   }
 
   const handleToggle = async (id, current) => {
     const res = await updateTask(id, { completed: !current })
     setTasks(prev => prev.map(t => t.id === id ? res.data : t))
     await getStats().then(r => setStats(r.data))
-    toast.success(!current ? 'Marked complete' : 'Marked pending')
+    toast.success(!current ? 'marked complete' : 'marked pending')
   }
 
   const handleDelete = async (id) => {
     await deleteTask(id)
     setTasks(prev => prev.filter(t => t.id !== id))
     await getStats().then(r => setStats(r.data))
-    toast.success('Task deleted')
+    toast.success('task deleted')
   }
+
+  // Group and sort tasks — recomputed only when tasks change
+  const groups = useMemo(() => groupAndSortTasks(tasks), [tasks])
+  const overdueCount = useMemo(() => getOverdueCount(tasks), [tasks])
 
   return (
     <div className="min-h-screen bg-bg text-text transition-colors duration-300">
@@ -91,9 +96,24 @@ export default function App() {
               </div>
               <span className="font-mono text-xs text-text-muted truncate">~/taskflow</span>
             </div>
-            <h1 className="text-lg font-display font-bold text-text tracking-tight">TaskFlow</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-lg font-display font-bold text-text tracking-tight">TaskFlow</h1>
+              {/* Overdue badge */}
+              {overdueCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="flex items-center gap-1 bg-red-400/10 text-red-400 border border-red-400/30
+                    text-xs font-mono px-2 py-0.5 rounded-full"
+                >
+                  <AlertTriangle size={10} />
+                  {overdueCount} overdue
+                </motion.span>
+              )}
+            </div>
             <p className="text-xs text-text-muted font-mono hidden sm:block">// stay organized, stay ahead</p>
           </div>
+
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={fetchAll}
               className="p-2 rounded-lg border border-border text-text-muted hover:text-text hover:bg-surface-hover transition-colors"
@@ -118,27 +138,43 @@ export default function App() {
 
           {loading ? (
             <div className="text-center py-16 text-text-muted">
-              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }} className="inline-block">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                className="inline-block"
+              >
                 <RefreshCw size={24} />
               </motion.div>
               <p className="mt-2 text-sm font-mono">loading tasks...</p>
             </div>
           ) : tasks.length === 0 ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="text-center py-16 text-text-muted">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-16 text-text-muted"
+            >
               <p className="text-4xl mb-3 font-mono">∅</p>
               <p className="font-display font-semibold text-text">No tasks found</p>
               <p className="text-sm mt-1 font-mono">// add a task or adjust filters</p>
             </motion.div>
           ) : (
-            <motion.div layout className="space-y-3">
-              <p className="text-sm text-text-muted font-mono px-1">{tasks.length} task{tasks.length !== 1 ? 's' : ''} found</p>
+            <div>
+              <p className="text-xs text-text-muted font-mono px-1 mb-4">
+                {tasks.length} task{tasks.length !== 1 ? 's' : ''} · {groups.length} group{groups.length !== 1 ? 's' : ''}
+              </p>
               <AnimatePresence mode="popLayout">
-                {tasks.map(task => (
-                  <TaskCard key={task.id} task={task} onToggle={handleToggle} onDelete={handleDelete} onEdit={setEditTask} onSubtaskChange={fetchAll} />
+                {groups.map(group => (
+                  <TaskGroup
+                    key={group.key}
+                    group={group}
+                    onToggle={handleToggle}
+                    onDelete={handleDelete}
+                    onEdit={setEditTask}
+                    onSubtaskChange={fetchAll}
+                  />
                 ))}
               </AnimatePresence>
-            </motion.div>
+            </div>
           )}
         </div>
 
