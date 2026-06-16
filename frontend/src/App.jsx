@@ -94,10 +94,10 @@ export default function App() {
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                 <span className="w-2.5 h-2.5 rounded-full bg-accent" />
               </div>
-              <span className="font-mono text-xs text-text-muted truncate">~/taskflow</span>
+              <span className="font-mono text-xs text-text-muted truncate">~/prio</span>
             </div>
             <div className="flex items-center gap-3">
-              <h1 className="text-lg font-display font-bold text-text tracking-tight">TaskFlow</h1>
+              <h1 className="text-lg font-display font-bold text-text tracking-tight">Prio</h1>
               {/* Overdue badge */}
               {overdueCount > 0 && (
                 <motion.span
