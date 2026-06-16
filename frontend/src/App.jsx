@@ -81,27 +81,31 @@ export default function App() {
     <div className="min-h-screen bg-bg text-text transition-colors duration-300">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div>
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <div className="flex gap-1.5">
+              <div className="flex gap-1.5 shrink-0">
                 <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                 <span className="w-2.5 h-2.5 rounded-full bg-accent" />
               </div>
-              <span className="font-mono text-xs text-text-muted">~/taskflow</span>
+              <span className="font-mono text-xs text-text-muted truncate">~/taskflow</span>
             </div>
-            <h1 className="text-xl font-display font-bold text-text tracking-tight">TaskFlow</h1>
-            <p className="text-xs text-text-muted font-mono">// stay organized, stay ahead</p>
+            <h1 className="text-lg font-display font-bold text-text tracking-tight">TaskFlow</h1>
+            <p className="text-xs text-text-muted font-mono hidden sm:block">// stay organized, stay ahead</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={fetchAll} className="p-2 rounded-lg border border-border text-text-muted hover:text-text hover:bg-surface-hover transition-colors" title="Refresh">
+          <div className="flex items-center gap-2 shrink-0">
+            <button onClick={fetchAll}
+              className="p-2 rounded-lg border border-border text-text-muted hover:text-text hover:bg-surface-hover transition-colors"
+              title="Refresh">
               <RefreshCw size={16} />
             </button>
             <ThemeToggle dark={dark} onToggle={() => setDark(d => !d)} />
             <button onClick={() => setShowForm(true)}
-              className="flex items-center gap-1.5 bg-accent text-bg font-display font-semibold text-sm px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
-              <Plus size={16} /> New Task
+              className="flex items-center gap-1.5 bg-accent text-bg font-display font-semibold text-sm px-3 py-2 rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap">
+              <Plus size={16} />
+              <span className="hidden sm:inline">New Task</span>
+              <span className="sm:hidden">New</span>
             </button>
           </div>
         </div>
