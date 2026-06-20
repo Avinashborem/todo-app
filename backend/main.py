@@ -6,11 +6,15 @@ from routes import tasks
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Todo App API", version="1.0.0")
+app = FastAPI(title="Prio API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://*.vercel.app"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://prio-app-psi.vercel.app",
+    ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,4 +24,4 @@ app.include_router(tasks.router)
 
 @app.get("/")
 def root():
-    return {"message": "Todo App API is running!"}
+    return {"message": "Prio API is running!"}
