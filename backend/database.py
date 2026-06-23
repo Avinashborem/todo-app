@@ -8,9 +8,12 @@ load_dotenv()
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./todos.db")
 
-# PostgreSQL needs different connect_args than SQLite
 if SQLALCHEMY_DATABASE_URL.startswith("postgresql"):
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        pool_pre_ping=True,
+        pool_recycle=300,
+    )
 else:
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
